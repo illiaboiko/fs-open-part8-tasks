@@ -2,23 +2,17 @@ import { useEffect, useState } from 'react'
 import { useMutation } from '@apollo/client/react'
 import { EDIT_AUTHOR } from '../graphql/mutations/author'
 
-const SetBirthYear = ({notify}) => {
+const SetBirthYear = ({ notify, authors }) => {
   const [name, setName] = useState('')
   const [born, setBorn] = useState('')
+  const [authorSelect, setAuthorSelect] = useState(authors ? authors[0].name : '')
 
   const [updateAuthor, result] = useMutation(EDIT_AUTHOR)
 
   const hadnleSubmit = (e) => {
     e.preventDefault()
-    console.log('name before udpate', name)
-    console.log('born before update', born)
 
-    updateAuthor({ variables: { name: name, born: parseInt(born) } })
-    // mutation here
-    setName('')
-    setBorn('')
-
-    //updating cache here
+    updateAuthor({ variables: { name: authorSelect, born: parseInt(born) } })
   }
 
   useEffect(() => {
@@ -28,24 +22,23 @@ const SetBirthYear = ({notify}) => {
     }
   }, [result.error])
 
+  if(!authors) return null
+
   return (
     <div>
       <h2>Set author's birth year</h2>
       <form method="post">
         <div>
-          <label htmlFor="name">name</label>
-          <input
-          value={name}
-            onChange={(e) => setName(e.target.value)}
-            type="text"
-            name="name"
-            id="name"
-          />
+          <select name="authors" id="authors" value={authorSelect} onChange={(e)=> setAuthorSelect(e.target.value)}>
+            {authors.map((a) => (
+              <option value={a.name} key={a.name}>{a.name}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="born">born</label>
           <input
-          value={born}
+            value={born}
             onChange={(e) => setBorn(e.target.value)}
             type="number"
             name="born"
