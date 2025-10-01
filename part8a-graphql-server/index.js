@@ -186,7 +186,7 @@ const resolvers = {
         })
       }
       author = { ...author, born: args.born }
-      authors.map((a) => (a.name === author.name ? author : a))
+      authors = authors.map((a) => (a.name === author.name ? author : a))
       return author
     },
   },
