@@ -1,7 +1,25 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
-const { NoUnusedVariablesRule, GraphQLError } = require('graphql')
+const { GraphQLError } = require('graphql')
 const { v1: uuid } = require('uuid')
+const typeDefs = require('./schema/typeDefs')
+const resolvers = require('./schema/resolvers')
+
+const mongoose = require('mongoose')
+mongoose.set('strictQuery', false)
+
+require('dotenv').config()
+const TEST_MONGODB_URI = process.env.TEST_MONGODB_URI
+// console.log('connecting to ', TEST_MONGODB_URI)
+
+mongoose
+  .connect(TEST_MONGODB_URI)
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connection to MongoDB:', error.message)
+  })
 
 let authors = [
   {
@@ -98,99 +116,6 @@ let books = [
 /*
   you can remove the placeholder query once your first one has been implemented 
 */
-
-const typeDefs = `
-  type Book {
-   title: String!
-   published: Int!
-   author: String!
-   id: ID!
-   genres: [String]
-  }
-
-  type Author {
-    name: String!
-    born: Int
-    id: ID!
-    bookCount: Int
-  }
-
-  type Query {
-    bookCount: Int!
-    authorCount: Int!
-    allBooks(author: String, genre: String): [Book!]!
-    allAuthors: [Author] 
-  }
-
-  type Mutation {
-    addBook(
-    title: String!
-    published: Int!
-    author: String!
-    genres: [String!]!
-    ): Book
-    editAuthor(
-        name: String!
-        born: Int!
-    ): Author
-  }
-`
-
-const resolvers = {
-  Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (root, args) => {
-      let filtered = books
-
-      if (args.author) {
-        filtered = filtered.filter((b) => b.author === args.author)
-      }
-
-      if (args.genre) {
-        filtered = filtered.filter((b) => b.genres.includes(args.genre))
-      }
-
-      return filtered
-    },
-    allAuthors: () => authors,
-  },
-  Author: {
-    bookCount: (root) =>
-      books.reduce(
-        (count, book) => (root.name === book.author ? count + 1 : count),
-        0
-      ),
-  },
-  Mutation: {
-    addBook: (root, args) => {
-      const book = { ...args, id: uuid() }
-      books = books.concat(book)
-
-      let author = authors.find((a) => a.name === args.author)
-      if (!author) {
-        author = { name: args.author, id: uuid(), born: null }
-        authors = authors.concat(author)
-      }
-
-      return book
-    },
-    editAuthor: (root, args) => {
-      let author = authors.find((a) => a.name === args.name)
-      if (!author) {
-        throw new GraphQLError('Author not found', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            invalidArgs: args.name,
-          },
-        })
-      }
-      author = { ...author, born: args.born }
-      authors = authors.map((a) => (a.name === author.name ? author : a))
-      return author
-    },
-  },
-}
 
 const server = new ApolloServer({
   typeDefs,
