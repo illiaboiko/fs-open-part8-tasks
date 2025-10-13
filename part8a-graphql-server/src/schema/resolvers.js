@@ -36,7 +36,13 @@ const resolvers = {
         try {
           await author.save()
         } catch (error) {
-          console.log('saving person error', error)
+          throw new GraphQLError('Adding new book failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.author,
+              error,
+            },
+          })
         }
       }
 
@@ -44,7 +50,18 @@ const resolvers = {
         ...args,
         author: author,
       })
-      return await book.save()
+      try {
+        await book.save()
+      } catch (error) {
+        throw new GraphQLError('Adding new book failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title,
+            error,
+          },
+        })
+      }
+      return book 
     },
     editAuthor: async (root, args) => {
       if (!args.name || !args.born) return null
