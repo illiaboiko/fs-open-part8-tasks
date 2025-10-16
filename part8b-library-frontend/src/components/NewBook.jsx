@@ -1,21 +1,29 @@
 import { useMutation } from '@apollo/client/react'
 import { useState } from 'react'
 import { CREATE_BOOK } from '../graphql/mutations/book'
+import { useNavigate } from 'react-router-dom'
+import { ALL_BOOKS } from '../graphql/queries/book'
 
-
-const NewBook = () => {
+const NewBook = ({ setNotification }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  const [createBook] = useMutation(CREATE_BOOK)
+  const [createBook] = useMutation(CREATE_BOOK, {
+    refetchQueries: [{ query: ALL_BOOKS }],
+    onError: (error) => {
+      setNotification(error.errors[0].message, 'ERROR')
+    },
+  })
 
   const submit = async (event) => {
     event.preventDefault()
 
-    createBook({variables: {title, author, published: Number(published), genres}})
+    createBook({
+      variables: { title, author, published: Number(published), genres },
+    })
     console.log('add book...')
 
     setTitle('')
@@ -23,6 +31,7 @@ const NewBook = () => {
     setAuthor('')
     setGenres([])
     setGenre('')
+    setNotification('new book added!')
   }
 
   const addGenre = () => {
