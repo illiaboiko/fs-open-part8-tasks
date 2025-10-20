@@ -18,6 +18,7 @@ const resolvers = {
       }
 
       if (args.genre) {
+        console.log('in genres resolver', args.genre)
         filters.genres = { $in: [args.genre] }
       }
 

@@ -1,9 +1,8 @@
 import { useState } from 'react'
 
-const BookFilter = ({ allBooks, changeFilter }) => {
+const BookFilter = ({ allBooks, changeFilter, filter }) => {
   if (!allBooks) return null
 
-  const [pickedFilter, setPickedFilter] = useState('')
 
   let genresSet = new Set()
   for (const book of allBooks) {
@@ -14,7 +13,6 @@ const BookFilter = ({ allBooks, changeFilter }) => {
   const genresToDisplay = Array.from(genresSet)
 
   const handleFilterClick = (f) => {
-    setPickedFilter(f)
     changeFilter(f)
   }
 
@@ -23,7 +21,6 @@ const BookFilter = ({ allBooks, changeFilter }) => {
       filter:
       <button
         onClick={() => {
-          setPickedFilter('')
           changeFilter('')
         }}
         style={{
@@ -31,8 +28,8 @@ const BookFilter = ({ allBooks, changeFilter }) => {
           padding: '6px 12px',
           borderRadius: '6px',
           border: '1px solid #ccc',
-          backgroundColor: pickedFilter === '' ? '#007bff' : 'white',
-          color: pickedFilter === '' ? 'white' : 'black',
+          backgroundColor: filter === '' ? '#007bff' : 'white',
+          color: filter === '' ? 'white' : 'black',
           cursor: 'pointer',
         }}
       >
@@ -47,8 +44,8 @@ const BookFilter = ({ allBooks, changeFilter }) => {
             padding: '6px 12px',
             borderRadius: '6px',
             border: '1px solid #ccc',
-            backgroundColor: pickedFilter === g ? '#007bff' : 'white',
-            color: pickedFilter === g ? 'white' : 'black',
+            backgroundColor: filter === g ? '#007bff' : 'white',
+            color: filter === g ? 'white' : 'black',
             cursor: 'pointer',
           }}
         >

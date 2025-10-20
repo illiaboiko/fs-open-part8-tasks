@@ -4,10 +4,12 @@ import BookFilter from './BookFilter'
 import { useState } from 'react'
 
 const Books = () => {
-  const { loading, error, data } = useQuery(ALL_BOOKS)
   const [filter, setFilter] = useState('')
-
-  if (loading) return <p>loading data...</p>
+  console.log('filter state', filter)
+  const { data: allBooksForGenresFilter } = useQuery(ALL_BOOKS)
+  const { loading, error, data } = useQuery(ALL_BOOKS, {
+    variables: { genre: filter },
+  })
 
   if (error) {
     return (
@@ -22,29 +24,30 @@ const Books = () => {
     <div>
       <h2>books</h2>
       <BookFilter
-        allBooks={data?.allBooks}
+        allBooks={allBooksForGenresFilter?.allBooks}
+        filter={filter}
         changeFilter={(f) => setFilter(f)}
       />
-
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {(filter
-            ? data.allBooks.filter((book) => book.genres.includes(filter))
-            : data.allBooks
-          ).map((a) => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author.name}</td>
-              <td>{a.published}</td>
+      {loading ? (
+        <p>Loading books ...</p>
+      ) : (
+        <table>
+          <tbody>
+            <tr>
+              <th></th>
+              <th>author</th>
+              <th>published</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+            {data.allBooks.map((a) => (
+              <tr key={a.title}>
+                <td>{a.title}</td>
+                <td>{a.author.name}</td>
+                <td>{a.published}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   )
 }
