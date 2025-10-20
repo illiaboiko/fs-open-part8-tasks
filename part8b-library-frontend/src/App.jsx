@@ -6,6 +6,7 @@ import Notification from './components/Notification'
 import { useEffect, useState } from 'react'
 import LoginForm from './components/LoginForm'
 import { useApolloClient } from '@apollo/client/react'
+import RecommendedView from './RecommendedView'
 
 const App = () => {
   const [notification, setNotification] = useState(null)
@@ -47,6 +48,7 @@ const App = () => {
               <Link to="/books/new">
                 <button>New Book</button>
               </Link>
+              <Link to="/recommended"><button>Recommended</button></Link>
               <Link onClick={logout}>
                 <button>Log out</button>
               </Link>
@@ -64,12 +66,13 @@ const App = () => {
           <Route path="/books" element={<Books />}></Route>
           <Route
             path="/books/new"
-            element={<NewBook setNotification={notify} />}
+            element={<NewBook setNotification={notify} token={token} />}
           ></Route>
           <Route
             path="/login"
             element={<LoginForm setToken={setToken} setNotification={notify} />}
           ></Route>
+          <Route path="/recommended" element={<RecommendedView token={token} />}></Route>
         </Routes>
       </div>
     </Router>

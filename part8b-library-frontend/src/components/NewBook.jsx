@@ -4,7 +4,7 @@ import { CREATE_BOOK } from '../graphql/mutations/book'
 import { useNavigate } from 'react-router-dom'
 import { ALL_BOOKS } from '../graphql/queries/book'
 
-const NewBook = ({ setNotification }) => {
+const NewBook = ({ setNotification , token}) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -38,6 +38,8 @@ const NewBook = ({ setNotification }) => {
     setGenres(genres.concat(genre))
     setGenre('')
   }
+
+  if (!token) return <>You must be logged in to add new book</>
 
   return (
     <div>
