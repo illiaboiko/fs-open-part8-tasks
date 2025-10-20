@@ -13,6 +13,7 @@ const BookFilter = ({ allBooks, changeFilter, filter }) => {
   const genresToDisplay = Array.from(genresSet)
 
   const handleFilterClick = (f) => {
+    if(f === filter) return null
     changeFilter(f)
   }
 

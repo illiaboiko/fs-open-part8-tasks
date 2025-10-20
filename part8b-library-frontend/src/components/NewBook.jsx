@@ -1,7 +1,6 @@
 import { useMutation } from '@apollo/client/react'
 import { useState } from 'react'
 import { CREATE_BOOK } from '../graphql/mutations/book'
-import { useNavigate } from 'react-router-dom'
 import { ALL_BOOKS } from '../graphql/queries/book'
 
 const NewBook = ({ setNotification , token}) => {
@@ -12,10 +11,19 @@ const NewBook = ({ setNotification , token}) => {
   const [genres, setGenres] = useState([])
 
   const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }],
     onError: (error) => {
-      setNotification(error.errors[0].message, 'ERROR')
+      setNotification(error.errors[0].message, 'error')
     },
+    update: (cache, response) => {
+      console.log(response.data.addBook)
+      cache.updateQuery({query: ALL_BOOKS, variables: {
+        genre: ''
+      }}, ({allBooks})=> {
+        return {
+          allBooks: allBooks.concat(response.data.addBook)
+        }
+      })
+    }
   })
 
   const submit = async (event) => {

@@ -6,7 +6,7 @@ import Notification from './components/Notification'
 import { useEffect, useState } from 'react'
 import LoginForm from './components/LoginForm'
 import { useApolloClient } from '@apollo/client/react'
-import RecommendedView from './RecommendedView'
+import RecommendedView from './components/RecommendedView'
 
 const App = () => {
   const [notification, setNotification] = useState(null)
