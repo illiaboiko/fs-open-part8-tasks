@@ -3,13 +3,12 @@ import { useMutation } from '@apollo/client/react'
 import { EDIT_AUTHOR } from '../graphql/mutations/author'
 
 const SetBirthYear = ({ notify, authors }) => {
-  const [name, setName] = useState('')
   const [born, setBorn] = useState('')
   const [authorSelect, setAuthorSelect] = useState(authors ? authors[0].name : '')
 
   const [updateAuthor, result] = useMutation(EDIT_AUTHOR)
 
-  const hadnleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
 
     updateAuthor({ variables: { name: authorSelect, born: parseInt(born) } })
@@ -26,7 +25,7 @@ const SetBirthYear = ({ notify, authors }) => {
 
   return (
     <div>
-      <h2>Set author's birth year</h2>
+      <h2>Set author&apos;s birth year</h2>
       <form method="post">
         <div>
           <select name="authors" id="authors" value={authorSelect} onChange={(e)=> setAuthorSelect(e.target.value)}>
@@ -45,7 +44,7 @@ const SetBirthYear = ({ notify, authors }) => {
             id="born"
           />
         </div>
-        <button type="submit" onClick={hadnleSubmit}>
+        <button type="submit" onClick={handleSubmit}>
           update
         </button>
       </form>

@@ -8,6 +8,7 @@ import LoginForm from './components/LoginForm'
 import { useApolloClient } from '@apollo/client/react'
 import RecommendedView from './components/RecommendedView'
 
+
 const App = () => {
   const [notification, setNotification] = useState(null)
   const notify = (message, type) => {
@@ -63,7 +64,7 @@ const App = () => {
         </div>
         <Routes>
           <Route path="/authors" element={<Authors notify={notify} />}></Route>
-          <Route path="/books" element={<Books />}></Route>
+          <Route path="/books" element={<Books notify={notify}/>}></Route>
           <Route
             path="/books/new"
             element={<NewBook setNotification={notify} token={token} />}

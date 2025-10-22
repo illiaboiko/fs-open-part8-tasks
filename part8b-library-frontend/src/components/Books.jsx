@@ -1,14 +1,34 @@
-import { useQuery } from '@apollo/client/react'
+import { useQuery, useSubscription } from '@apollo/client/react'
 import { ALL_BOOKS } from '../graphql/queries/book'
 import BookFilter from './BookFilter'
 import { useState } from 'react'
+import { BOOK_ADDED } from '../graphql/subsctiptions/book'
 
-const Books = () => {
+const Books = ({ notify }) => {
   const [filter, setFilter] = useState('')
-  console.log('filter state', filter)
   const { data: allBooksForGenresFilter } = useQuery(ALL_BOOKS)
   const { loading, error, data } = useQuery(ALL_BOOKS, {
     variables: { genre: filter },
+  })
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded
+      notify('new book added')
+      client.cache.updateQuery(
+        {
+          query: ALL_BOOKS,
+          variables: {
+            genre: '',
+          },
+        },
+        ({ allBooks }) => {
+          return {
+            allBooks: allBooks.concat(addedBook),
+          }
+        }
+      )
+    },
   })
 
   if (error) {

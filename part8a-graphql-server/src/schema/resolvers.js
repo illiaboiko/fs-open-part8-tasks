@@ -1,7 +1,9 @@
+const { PubSub } = require('graphql-subscriptions')
+const pubsub = new PubSub()
 const Book = require('../models/Book')
 const Author = require('../models/Author')
 const User = require('../models/User')
-const { GraphQLError } = require('graphql')
+const { GraphQLError, subscribe } = require('graphql')
 jwt = require('jsonwebtoken')
 
 const resolvers = {
@@ -18,7 +20,6 @@ const resolvers = {
       }
 
       if (args.genre) {
-        console.log('in genres resolver', args.genre)
         filters.genres = { $in: [args.genre] }
       }
 
@@ -44,7 +45,6 @@ const resolvers = {
       }
       let author = await Author.findOne({ name: args.author })
       if (!author) {
-        console.log('no such author, creating one')
         author = new Author({ name: args.author })
         try {
           await author.save()
@@ -74,6 +74,9 @@ const resolvers = {
           },
         })
       }
+
+      pubsub.publish('BOOK_ADDED', { bookAdded: book })
+
       return book
     },
     editAuthor: async (root, args, context) => {
@@ -92,13 +95,13 @@ const resolvers = {
         { name: args.name, born: args.born },
         { new: true }
       )
-      console.log(author)
       return author
     },
     createUser: async (root, args) => {
-      const user = new User({ username: args.username, favoriteGenre: args.favoriteGenre })
-      console.log(args)
-      console.log(user)
+      const user = new User({
+        username: args.username,
+        favoriteGenre: args.favoriteGenre,
+      })
 
       return user.save().catch((error) => {
         throw new GraphQLError('Creating user failed', {
@@ -126,6 +129,11 @@ const resolvers = {
       }
 
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterableIterator('BOOK_ADDED'),
     },
   },
 }
