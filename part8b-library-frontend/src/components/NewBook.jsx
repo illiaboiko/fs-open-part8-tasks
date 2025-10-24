@@ -2,8 +2,9 @@ import { useMutation } from '@apollo/client/react'
 import { useState } from 'react'
 import { CREATE_BOOK } from '../graphql/mutations/book'
 import { ALL_BOOKS } from '../graphql/queries/book'
+import { updateCache } from '../App'
 
-const NewBook = ({ setNotification , token}) => {
+const NewBook = ({ setNotification, token }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -15,15 +16,17 @@ const NewBook = ({ setNotification , token}) => {
       setNotification(error.errors[0].message, 'error')
     },
     update: (cache, response) => {
-      console.log(response.data.addBook)
-      cache.updateQuery({query: ALL_BOOKS, variables: {
-        genre: ''
-      }}, ({allBooks})=> {
-        return {
-          allBooks: allBooks.concat(response.data.addBook)
-        }
-      })
-    }
+      updateCache(
+        cache,
+        {
+          query: ALL_BOOKS,
+          variables: {
+            genre: '',
+          },
+        },
+        response.data.addBook
+      )
+    },
   })
 
   const submit = async (event) => {

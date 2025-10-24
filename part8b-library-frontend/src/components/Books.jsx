@@ -3,6 +3,7 @@ import { ALL_BOOKS } from '../graphql/queries/book'
 import BookFilter from './BookFilter'
 import { useState } from 'react'
 import { BOOK_ADDED } from '../graphql/subsctiptions/book'
+import { updateCache } from '../App'
 
 const Books = ({ notify }) => {
   const [filter, setFilter] = useState('')
@@ -15,19 +16,25 @@ const Books = ({ notify }) => {
     onData: ({ data, client }) => {
       const addedBook = data.data.bookAdded
       notify('new book added')
-      client.cache.updateQuery(
+
+      updateCache(
+        client.cache,
         {
           query: ALL_BOOKS,
           variables: {
             genre: '',
           },
         },
-        ({ allBooks }) => {
-          return {
-            allBooks: allBooks.concat(addedBook),
-          }
-        }
+        addedBook
       )
+
+      if (filter && addedBook.genres.includes(filter)) {
+        updateCache(
+          client.cache,
+          { query: ALL_BOOKS, variables: { genre: filter } },
+          addedBook
+        )
+      }
     },
   })
 
@@ -59,7 +66,7 @@ const Books = ({ notify }) => {
               <th>published</th>
             </tr>
             {data.allBooks.map((a) => (
-              <tr key={a.title}>
+              <tr key={a.id}>
                 <td>{a.title}</td>
                 <td>{a.author.name}</td>
                 <td>{a.published}</td>

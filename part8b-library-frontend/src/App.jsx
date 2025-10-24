@@ -8,6 +8,23 @@ import LoginForm from './components/LoginForm'
 import { useApolloClient } from '@apollo/client/react'
 import RecommendedView from './components/RecommendedView'
 
+// function that takes care of manipulating cache
+export const updateCache = (cache, query, addedBook) => {
+  // helper that is used to eliminate saving same person twice
+  const uniqByTitle = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.title
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqByTitle(allBooks.concat(addedBook)),
+    }
+  })
+}
 
 const App = () => {
   const [notification, setNotification] = useState(null)
@@ -49,7 +66,9 @@ const App = () => {
               <Link to="/books/new">
                 <button>New Book</button>
               </Link>
-              <Link to="/recommended"><button>Recommended</button></Link>
+              <Link to="/recommended">
+                <button>Recommended</button>
+              </Link>
               <Link onClick={logout}>
                 <button>Log out</button>
               </Link>
@@ -64,7 +83,7 @@ const App = () => {
         </div>
         <Routes>
           <Route path="/authors" element={<Authors notify={notify} />}></Route>
-          <Route path="/books" element={<Books notify={notify}/>}></Route>
+          <Route path="/books" element={<Books notify={notify} />}></Route>
           <Route
             path="/books/new"
             element={<NewBook setNotification={notify} token={token} />}
@@ -73,7 +92,10 @@ const App = () => {
             path="/login"
             element={<LoginForm setToken={setToken} setNotification={notify} />}
           ></Route>
-          <Route path="/recommended" element={<RecommendedView token={token} />}></Route>
+          <Route
+            path="/recommended"
+            element={<RecommendedView token={token} />}
+          ></Route>
         </Routes>
       </div>
     </Router>
